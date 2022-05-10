@@ -1,11 +1,5 @@
-import React, { useContext, useState } from "react";
-import {
-  Button,
-  View,
-  Image,
-  TextInput,
-  StyleSheet,
-} from "react-native";
+import React, { useContext, useEffect, useState } from "react";
+import { Button, View, Image, TextInput, StyleSheet } from "react-native";
 import AppLayout from "../components/Layout";
 import { AuthContext } from "../utils/AuthContext";
 import ErrorMessage from "../components/ErrorMessage";
@@ -13,16 +7,15 @@ import { useMutation } from "@apollo/client";
 import { LOGIN } from "../utils/graphqlRequests";
 import { ClassroomContext } from "../utils/ClassroomContext";
 
-
 export default function AuthScreen() {
   const { signIn } = React.useContext(AuthContext);
-  const {setClassroomId} = useContext(ClassroomContext);
+  const { setClassroomId } = useContext(ClassroomContext);
 
   const [emailInput, setEmailInput] = useState<string>("eleve1@aca.com");
   const [passwordInput, setPasswordInput] = useState<string>("eleve1");
   const [authErrorText, setAuthErrorText] = useState<string>("");
   const [isVisibleErrorMessage, setIsVisibleErrorMessage] = useState<boolean>(false);
-  const [connect] = useMutation(LOGIN, {    
+  const [connect] = useMutation(LOGIN, {
     onCompleted: (value) => {
       setClassroomId(value.login.classroom[0].classroomId);
       signIn(value.login);
@@ -70,11 +63,7 @@ export default function AuthScreen() {
           secureTextEntry={true}
         />
         <View style={stlyes.authButtonContainer}>
-          <Button
-            title={"Me connecter"}
-            onPress={authenticate}
-            color={"#8FC89A"}
-          />
+          <Button title={"Me connecter"} onPress={authenticate} color={"#8FC89A"} />
         </View>
       </View>
     </AppLayout>

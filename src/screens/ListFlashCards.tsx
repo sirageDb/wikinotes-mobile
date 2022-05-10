@@ -11,26 +11,41 @@ import * as SecureStore from "expo-secure-store";
 
 //=============================================================================
 
-
 export default function ListFlashCards(): JSX.Element {
   const [filterText, setFilterText] = useState("");
   const [filterTextDelayed, setFilterTextDelayed] = useState("");
   const [flashCards, setFlashCards] = useState<any>([]);
   const { classroomId } = useContext(ClassroomContext);
-  const { loading, error, data} = useQuery(GET_ALL_FLASH_CARDS, { variables: { classroomId : classroomId} });
+  const { loading, error, data, refetch } = useQuery<
+    {
+      getAllFlashcards: {
+        id: string;
+        flashcard: Array<{ id: string; title: string }>;
+      };
+    },
+    { classroomId: string }
+  >(GET_ALL_FLASH_CARDS, {
+    // fetchPolicy : 'no-cache',
+    variables: {
+      classroomId: classroomId,
+    },
+  });
+
+  if(loading && data){
+    console.log("loading and adata");
+  }
+
+  if(loading && !data){
+    console.log("loading and no adata");
+  }
 
   if(error){
-    console.log("___________________");
-    console.log(error.message);
-    console.log("___________________");
-    console.log(data);
+    console.log(error);
   }
 
-  if(data){
-    console.log("___________________");
-    console.log(data);
-    console.log("___________________");
-  }
+  console.log(data);
+
+
 
   //MERCI DE GARDER USE MEMO ICI
   //https://github.com/trojanowski/react-apollo-hooks/issues/133
@@ -41,8 +56,15 @@ export default function ListFlashCards(): JSX.Element {
     }
   }, [data]);
 
+
+
   useEffect(() => {
-    if(data){
+    console.log(data);
+  }, [data])
+
+
+  useEffect(() => {
+    if (data) {
       if (filterTextDelayed === "") {
         setFlashCards(data.getAllFlashcards);
       }
@@ -51,7 +73,6 @@ export default function ListFlashCards(): JSX.Element {
       }
     }
   }, [filterTextDelayed]);
-
 
   //============================================================================
   const filterFlashCards = (listFlashCards: any, filterTextDelayed: string) => {
@@ -82,7 +103,9 @@ export default function ListFlashCards(): JSX.Element {
     console.log("=====");
     console.log(userToken);
     console.log("=====");
-  }
+    refetch();
+    console.log(data);
+  };
   //===============================================================================
 
   return (
@@ -102,7 +125,9 @@ export default function ListFlashCards(): JSX.Element {
         <View>
           <Button
             title={"Get token"}
-            onPress={() => {gg()}}
+            onPress={() => {
+              gg();
+            }}
             color={"#8FC89A"}
           />
         </View>

@@ -22,22 +22,23 @@ const Drawer = createDrawerNavigator();
 
 //Apollo instance creatation
 //==========================================================
+
 const httpLink = createHttpLink({
   uri : 'http://192.168.1.43:5000/graphql',
 })
 
-const authMidlw = new ApolloLink((operation, next) => {
-  operation.setContext(({ headers = {} }) => ({
+const authLink = setContext (async(_, { headers }) => {
+  const token = await SecureStore.getItemAsync('userToken')
+  return {
     headers: {
       ...headers,
-      authorization: SecureStore.getItemAsync('userToken') || '',
-    },
-  }));
-  return next(operation);
+      Authorization: token ? `${token}` : "",
+    }
+  }
 });
 
 const client = new ApolloClient({
-  link: concat(authMidlw, httpLink),
+  link: authLink.concat(httpLink),
   cache: new InMemoryCache(),
 });
 //==========================================================

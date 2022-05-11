@@ -25,7 +25,7 @@ export default function ListFlashCards(): JSX.Element {
     },
     { classroomId: string }
   >(GET_ALL_FLASH_CARDS, {
-    // fetchPolicy : 'no-cache',
+    fetchPolicy :"network-only",
     variables: {
       classroomId: classroomId,
     },
@@ -36,25 +36,24 @@ export default function ListFlashCards(): JSX.Element {
   }
 
   if(loading && !data){
-    console.log("loading and no adata");
+    console.log("loading and no data");
   }
 
   if(error){
     console.log(error);
   }
 
-  console.log(data);
-
 
 
   //MERCI DE GARDER USE MEMO ICI
   //https://github.com/trojanowski/react-apollo-hooks/issues/133
   //https://github.com/trojanowski/react-apollo-hooks/issues/158
-  useMemo(() => {
+/*   useMemo(() => {
     if (data) {
       setFlashCards(data.getAllFlashcards);
     }
-  }, [data]);
+  }, [data]); */
+
 
 
 
@@ -98,7 +97,7 @@ export default function ListFlashCards(): JSX.Element {
   };
   //===============================================================================
 
-  const gg = async () => {
+  const refrech = async () => {
     const userToken = await SecureStore.getItemAsync("userToken");
     console.log("=====");
     console.log(userToken);
@@ -126,7 +125,7 @@ export default function ListFlashCards(): JSX.Element {
           <Button
             title={"Get token"}
             onPress={() => {
-              gg();
+              refrech();
             }}
             color={"#8FC89A"}
           />

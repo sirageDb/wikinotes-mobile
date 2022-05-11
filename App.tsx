@@ -40,6 +40,16 @@ const authLink = setContext (async(_, { headers }) => {
 const client = new ApolloClient({
   link: authLink.concat(httpLink),
   cache: new InMemoryCache(),
+  defaultOptions : {
+    query : {
+      fetchPolicy :"network-only",
+      errorPolicy :"all",
+    },
+    watchQuery : {
+      fetchPolicy :"network-only",
+      errorPolicy : "all",
+    }
+  }
 });
 //==========================================================
 
@@ -87,19 +97,12 @@ const AppDrawer = () => {
 };
 
 //=========================================
-
 export default function App() {
   const [classroomId, setClassroomId] = useState<any>("");
 
   const [state, dispatch] = React.useReducer(
     (prevState: any, action: any) => {
       switch (action.type) {
-        case "RESTORE_TOKEN":
-          return {
-            ...prevState,
-            userToken: action.token,
-            isLoading: false,
-          };
         case "SIGN_IN":
           return {
             ...prevState,
@@ -121,37 +124,23 @@ export default function App() {
     }
   );
 
-  //============================
-  React.useEffect(() => {
-    const bootstrapAsync = async () => {
-      let userToken;
-      try {
-        userToken = await SecureStore.getItemAsync("userToken");
-      } catch (e) {
-        console.log(e);
-      }
-      dispatch({ type: "RESTORE_TOKEN", token: userToken });
-    };
-
-    bootstrapAsync();
-  }, []);
-
-  //===========================
-
-
-
   const authContext = React.useMemo(
     () => ({
       signIn: async (data: any) => {
+        await client.clearStore();
+        await client.resetStore();
         dispatch({ type: "SIGN_IN", data });
         await SecureStore.setItemAsync("userToken", data.token);
       },
-      signOut: () => dispatch({ type: "SIGN_OUT" }),
+      signOut: async() => {
+        dispatch({ type: "SIGN_OUT" })
+        await SecureStore.deleteItemAsync("userToken")
+        await client.clearStore();
+        await client.resetStore();
+      }
     }),
     []
   );
-
-
 
 
   return (

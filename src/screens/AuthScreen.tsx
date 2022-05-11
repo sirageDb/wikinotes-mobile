@@ -11,8 +11,8 @@ export default function AuthScreen() {
   const { signIn } = React.useContext(AuthContext);
   const { setClassroomId } = useContext(ClassroomContext);
 
-  const [emailInput, setEmailInput] = useState<string>("eleve1@aca.com");
-  const [passwordInput, setPasswordInput] = useState<string>("eleve1");
+  const [emailInput, setEmailInput] = useState<string>("");
+  const [passwordInput, setPasswordInput] = useState<string>("");
   const [authErrorText, setAuthErrorText] = useState<string>("");
   const [isVisibleErrorMessage, setIsVisibleErrorMessage] = useState<boolean>(false);
   const [connect] = useMutation(LOGIN, {

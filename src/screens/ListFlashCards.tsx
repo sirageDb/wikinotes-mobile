@@ -4,11 +4,9 @@ import { debounce } from "lodash";
 import FlashCardCell from "../components/FlashCardCell";
 import { ScrollView } from "react-native";
 import AppLayout from "../components/Layout";
-import { useQuery } from "@apollo/client";
-import { GET_ALL_FLASH_CARDS } from "../utils/graphqlRequests";
 import { ClassroomContext } from "../utils/ClassroomContext";
 import * as SecureStore from "expo-secure-store";
-import { createIconSetFromIcoMoon } from "@expo/vector-icons";
+import { GRAPHQL_ENDPOINT } from "../utils/endpoint";
 
 //=============================================================================
 
@@ -33,7 +31,7 @@ export default function ListFlashCards(): JSX.Element {
   }, []);
 
   const getData = async () => {
-    const response = await fetch("http://192.168.1.43:5000/", {
+    const response = await fetch(GRAPHQL_ENDPOINT, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

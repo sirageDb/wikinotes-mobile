@@ -16,6 +16,7 @@ import { ClassroomContext } from "./src/utils/ClassroomContext";
 import * as SecureStore from 'expo-secure-store';
 import AuthScreen from "./src/screens/AuthScreen";
 import SettingsScreen from "./src/screens/SettingsScreen";
+import { GRAPHQL_ENDPOINT } from "./src/utils/endpoint";
 
 const Stack = createNativeStackNavigator<ParamListBase>();
 const Drawer = createDrawerNavigator();
@@ -23,7 +24,7 @@ const Drawer = createDrawerNavigator();
 //Apollo instance creatation
 //==========================================================
 const httpLink = createHttpLink({
-  uri : 'http://192.168.1.43:5000/',
+  uri : GRAPHQL_ENDPOINT,
 })
 
 const authLink = setContext (async(_, { headers }) => {

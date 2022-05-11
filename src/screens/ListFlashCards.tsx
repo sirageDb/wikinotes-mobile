@@ -8,6 +8,7 @@ import { useQuery } from "@apollo/client";
 import { GET_ALL_FLASH_CARDS } from "../utils/graphqlRequests";
 import { ClassroomContext } from "../utils/ClassroomContext";
 import * as SecureStore from "expo-secure-store";
+import { createIconSetFromIcoMoon } from "@expo/vector-icons";
 
 //=============================================================================
 
@@ -16,59 +17,58 @@ export default function ListFlashCards(): JSX.Element {
   const [filterTextDelayed, setFilterTextDelayed] = useState("");
   const [flashCards, setFlashCards] = useState<any>([]);
   const { classroomId } = useContext(ClassroomContext);
-  const { loading, error, data, refetch } = useQuery<
-    {
-      getAllFlashcards: {
-        id: string;
-        flashcard: Array<{ id: string; title: string }>;
-      };
-    },
-    { classroomId: string }
-  >(GET_ALL_FLASH_CARDS, {
-    fetchPolicy : "network-only",
-    // fetchPolicy: "cache-only",
-    variables: {
-      classroomId: classroomId,
-    },
-  });
 
-  if (loading && data) {
-    console.log("loading and adata");
-  }
-
-  if (loading && !data) {
-    console.log("loading and no data");
-  }
-
-  if (error) {
-    console.log(error);
-  }
-
-  //Keep it here
-  //https://github.com/trojanowski/react-apollo-hooks/issues/133
-  //https://github.com/trojanowski/react-apollo-hooks/issues/158
-  useMemo(() => {
-    if (data) {
-      setFlashCards(data.getAllFlashcards);
-    }
-  }, [data]);
-
-/*   useEffect(() => {
-    if (data) {
-      setFlashCards(data.getAllFlashcards);
-    }
-  }, [data]); */
 
   useEffect(() => {
-    if (data) {
       if (filterTextDelayed === "") {
-        setFlashCards(data.getAllFlashcards);
+        setFlashCards(flashCards);
       }
       if (filterTextDelayed !== "") {
         filterFlashCards(flashCards, filterTextDelayed);
       }
-    }
   }, [filterTextDelayed]);
+
+  useEffect(() => {
+    getData();
+  }, []);
+
+  const getData = async () => {
+    const response = await fetch("http://192.168.1.43:5000/", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization" : await SecureStore.getItemAsync("userToken") || ""
+      },
+      body: JSON.stringify({
+        query: `
+        query getAllFlashcards ($classroomId: String!){
+          getAllFlashcards(classroomId: $classroomId) {
+            title,
+            tag,
+            id,
+            subtitle{
+              title,
+              position,
+              paragraph{
+                text
+              }
+            },
+            ressource{
+              name,
+              url
+            }
+          }
+        }
+      `,
+        variables: {
+          classroomId: classroomId,
+        },
+      }),
+    });
+
+    const fetchedData = await response.json();
+    setFlashCards(fetchedData.data.getAllFlashcards);
+  };
 
   //============================================================================
   const filterFlashCards = (listFlashCards: any, filterTextDelayed: string) => {
@@ -95,12 +95,7 @@ export default function ListFlashCards(): JSX.Element {
   //===============================================================================
 
   const refrech = async () => {
-    const userToken = await SecureStore.getItemAsync("userToken");
-    console.log("=====");
-    console.log(userToken);
-    console.log("=====");
-    refetch();
-    console.log(data);
+    await getData();
   };
   //===============================================================================
 
@@ -128,7 +123,7 @@ export default function ListFlashCards(): JSX.Element {
           />
         </View>
 
-        {flashCards.map((flashCard: any, key: number) => {
+        {flashCards && flashCards.map((flashCard: any, key: number) => {
           return (
             <FlashCardCell
               key={key}

@@ -22,9 +22,8 @@ const Drawer = createDrawerNavigator();
 
 //Apollo instance creatation
 //==========================================================
-
 const httpLink = createHttpLink({
-  uri : 'http://192.168.1.43:5000/graphql',
+  uri : 'http://192.168.1.43:5000/',
 })
 
 const authLink = setContext (async(_, { headers }) => {
@@ -127,16 +126,14 @@ export default function App() {
   const authContext = React.useMemo(
     () => ({
       signIn: async (data: any) => {
-        await client.clearStore();
         await client.resetStore();
-        dispatch({ type: "SIGN_IN", data });
         await SecureStore.setItemAsync("userToken", data.token);
+        dispatch({ type: "SIGN_IN", data });
       },
       signOut: async() => {
-        dispatch({ type: "SIGN_OUT" })
-        await SecureStore.deleteItemAsync("userToken")
-        await client.clearStore();
         await client.resetStore();
+        await SecureStore.deleteItemAsync("userToken")
+        dispatch({ type: "SIGN_OUT" })
       }
     }),
     []
@@ -149,7 +146,7 @@ export default function App() {
         <ClassroomContext.Provider value={{classroomId, setClassroomId}}>
           <NavigationContainer>
             <Stack.Navigator screenOptions={{ headerShown: false }}>
-              {state.userToken === null ? (
+              {state.userToken === null || ""? (
                 <Stack.Screen
                   name={screenNames.authScreen.name}
                   component={AuthScreen}

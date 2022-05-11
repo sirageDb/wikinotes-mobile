@@ -25,42 +25,39 @@ export default function ListFlashCards(): JSX.Element {
     },
     { classroomId: string }
   >(GET_ALL_FLASH_CARDS, {
-    fetchPolicy :"network-only",
+    fetchPolicy : "network-only",
+    // fetchPolicy: "cache-only",
     variables: {
       classroomId: classroomId,
     },
   });
 
-  if(loading && data){
+  if (loading && data) {
     console.log("loading and adata");
   }
 
-  if(loading && !data){
+  if (loading && !data) {
     console.log("loading and no data");
   }
 
-  if(error){
+  if (error) {
     console.log(error);
   }
 
-
-
-  //MERCI DE GARDER USE MEMO ICI
+  //Keep it here
   //https://github.com/trojanowski/react-apollo-hooks/issues/133
   //https://github.com/trojanowski/react-apollo-hooks/issues/158
-/*   useMemo(() => {
+  useMemo(() => {
+    if (data) {
+      setFlashCards(data.getAllFlashcards);
+    }
+  }, [data]);
+
+/*   useEffect(() => {
     if (data) {
       setFlashCards(data.getAllFlashcards);
     }
   }, [data]); */
-
-
-
-
-  useEffect(() => {
-    console.log(data);
-  }, [data])
-
 
   useEffect(() => {
     if (data) {
@@ -123,7 +120,7 @@ export default function ListFlashCards(): JSX.Element {
 
         <View>
           <Button
-            title={"Get token"}
+            title={"Refrech"}
             onPress={() => {
               refrech();
             }}
